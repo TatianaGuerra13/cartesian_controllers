@@ -4,8 +4,7 @@
          type="cartesian_motion_controller::CartesianMotionController"
          base_class_type="controller_interface::ControllerInterface">
     <description>
-      Steer your robot's end-effector with poses in Cartesian space.
-      Parameterize the controller between smoothness and exactness.
+     A cartesian controller in velocity mode that uses a cartesian motion model to compute the desired joint velocities
     </description>
   </class>
 
