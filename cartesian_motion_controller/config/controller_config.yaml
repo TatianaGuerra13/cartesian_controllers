@@ -1,0 +1,35 @@
+controller_manager:
+  ros__parameters:
+    update_rate: 50  # Hz
+
+cartesian_motion_controller:
+  type: "cartesian_controllers/CartesianMotionController"
+  ros__parameters:
+    joints:
+      - silvestroshoulder_pan_joint
+      - silvestroshoulder_lift_joint
+      - silvestroelbow_joint
+      - silvestrowrist_1_joint
+      - silvestrowrist_2_joint
+      - silvestrowrist_3_joint
+
+    # Kinematic chain configuration
+    robot_description: robot_description
+    robot_base_link: base_link  
+    end_effector_link: tool0
+
+    # Controller configuration 
+    command_interfaces:
+      - velocity
+
+    # IK solver configuration
+    ik_solver: selectively_damped_least_squares
+    ik_solver_parameters:
+      damping_factor: 0.01
+      max_iterations: 100
+      convergence_threshold: 0.001
+    
+    solver:
+      error_scale: 1.0
+      iterations: 1
+      publish_state_feedback: true
