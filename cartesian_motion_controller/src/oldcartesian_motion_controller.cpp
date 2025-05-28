@@ -48,7 +48,7 @@
 #include "rclcpp/duration.hpp"
 
 namespace cartesian_motion_controller
-{
+{ 
 CartesianMotionController::CartesianMotionController() : Base::CartesianControllerBase() {}
 
 rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn
