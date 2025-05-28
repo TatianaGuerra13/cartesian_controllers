@@ -53,25 +53,32 @@ controller_interface::return_type CartesianMotionController::update(
   const rclcpp::Time & time,
   const rclcpp::Duration & period)
 {
+  // Aggiorna le posizioni correnti dei giunti
+  Base::m_ik_solver->synchronizeJointPositions(Base::m_joint_state_pos_handles);
+
+  // Acquisizione thread-safe dell'ultimo comando dal decoder
   std::array<double, 7> cmd;
   {
     std::lock_guard<std::mutex> lock(m_command_mutex);
     cmd = m_latest_command;
   }
 
+  // Costruisce il Twist con le prime 6 componenti (linear + angular)
   KDL::Twist twist_cmd(
     KDL::Vector(cmd[0], cmd[1], cmd[2]),
     KDL::Vector(cmd[3], cmd[4], cmd[5]));
 
-  // Compute joint velocity commands from Cartesian twist
-  Base::computeJointControlCmds(twist_cmd, period);
+  // Conversione KDL::Twist in ctrl::Vector6D (Eigen::Matrix)
+  ctrl::Vector6D motion_error;
+  motion_error << twist_cmd.vel.x(), twist_cmd.vel.y(), twist_cmd.vel.z(),
+                  twist_cmd.rot.x(), twist_cmd.rot.y(), twist_cmd.rot.z();
 
-  // Send joint velocity commands to hardware
-  Base::writeJointControlCmds();
+  // Esegue il controllo per generare velocità articolari
+  Base::computeJointControlCmds(motion_error, period);
 
-  // Optional: store or publish grasp command (cmd[6]) if needed
   return controller_interface::return_type::OK;
 }
+
 
 }  // namespace cartesian_motion_controller
 
