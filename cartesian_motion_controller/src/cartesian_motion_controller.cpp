@@ -22,6 +22,7 @@ CartesianMotionController::on_init()
 rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn
 CartesianMotionController::on_configure(const rclcpp_lifecycle::State &)
 {
+  //creazione del subscription per il decoder
   m_decoder_sub_ = get_node()->create_subscription<std_msgs::msg::Float64MultiArray>(
     "/decoder_output", 10,
     std::bind(&CartesianMotionController::decoderCommandCallback, this, std::placeholders::_1));
@@ -56,7 +57,7 @@ controller_interface::return_type CartesianMotionController::update(
   // Aggiorna le posizioni correnti dei giunti
   Base::m_ik_solver->synchronizeJointPositions(Base::m_joint_state_pos_handles);
 
-  // Acquisizione thread-safe dell'ultimo comando dal decoder
+  // Acquisizione dell'ultimo comando dal decoder
   std::array<double, 7> cmd;
   {
     std::lock_guard<std::mutex> lock(m_command_mutex);
