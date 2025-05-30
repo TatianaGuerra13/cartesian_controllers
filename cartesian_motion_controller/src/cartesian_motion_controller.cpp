@@ -104,7 +104,7 @@ CartesianMotionController::update(const rclcpp::Time & time,
     // Synchronize the internal model and the real robot
     Base::m_ik_solver->synchronizeJointPositions(Base::m_joint_state_pos_handles);
 
-    std::array<double, 7> cmd = m_latest_command;
+    std::array<double, 6> cmd = m_latest_command;
 
     KDL::Twist twist_cmd(
         KDL::Vector(cmd[0], cmd[1], cmd[2]),  // linear part
