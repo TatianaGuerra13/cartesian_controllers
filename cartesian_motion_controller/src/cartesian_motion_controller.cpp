@@ -37,6 +37,8 @@
  */
 //-----------------------------------------------------------------------------
 
+//velocity controller for cartesian motion 
+
 #include <cartesian_motion_controller/cartesian_motion_controller.h>
 
 #include <algorithm>
@@ -49,6 +51,7 @@
 
 namespace cartesian_motion_controller
 {
+
 CartesianMotionController::CartesianMotionController() : Base::CartesianControllerBase() {}
 
 rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn
@@ -72,9 +75,9 @@ CartesianMotionController::on_configure(const rclcpp_lifecycle::State & previous
     return ret;
   }
 
-  m_target_frame_subscr = get_node()->create_subscription<geometry_msgs::msg::PoseStamped>(
-    get_node()->get_name() + std::string("/target_frame"), 3,
-    std::bind(&CartesianMotionController::targetFrameCallback, this, std::placeholders::_1));
+  m_decoder_subscr = get_node()->create_subscription<geometry_msgs::msg::Float64MultiArray>(
+    get_node()->get_name() + std::string("/decoder_output"), 3,
+    std::bind(&CartesianMotionController::decoderCommandCallbackCallback, this, std::placeholders::_1));
 
   return rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn::SUCCESS;
 }
@@ -84,11 +87,6 @@ CartesianMotionController::on_activate(const rclcpp_lifecycle::State & previous_
 {
   Base::on_activate(previous_state);
 
-  // Reset simulation with real joint state
-  m_current_frame = Base::m_ik_solver->getEndEffectorPose();
-
-  // Start where we are
-  m_target_frame = m_current_frame;
   return rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn::SUCCESS;
 }
 
@@ -99,115 +97,72 @@ CartesianMotionController::on_deactivate(const rclcpp_lifecycle::State & previou
   return rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn::SUCCESS;
 }
 
-controller_interface::return_type CartesianMotionController::update(const rclcpp::Time & time,
-                                                                    const rclcpp::Duration & period)
+controller_interface::return_type 
+CartesianMotionController::update(const rclcpp::Time & time,
+                                  const rclcpp::Duration & period)
 {
-  // Synchronize the internal model and the real robot
-  Base::m_ik_solver->synchronizeJointPositions(Base::m_joint_state_pos_handles);
+    // Synchronize the internal model and the real robot
+    Base::m_ik_solver->synchronizeJointPositions(Base::m_joint_state_pos_handles);
 
-  // Forward Dynamics turns the search for the according joint motion into a
-  // control process. So, we control the internal model until we meet the
-  // Cartesian target motion. This internal control needs some simulation time
-  // steps.
-  for (int i = 0; i < Base::m_iterations; ++i)
-  {
-    // The internal 'simulation time' is deliberately independent of the outer
-    // control cycle.
-    auto internal_period = rclcpp::Duration::from_seconds(0.02);
+    std::array<double, 7> cmd = m_latest_command;
 
-    // Compute the motion error = target - current.
-    ctrl::Vector6D error = computeMotionError();
+    KDL::Twist twist_cmd(
+        KDL::Vector(cmd[0], cmd[1], cmd[2]),  // linear part
+        KDL::Vector(cmd[3], cmd[4], cmd[5])   // angular part
+    );
 
-    // Turn Cartesian error into joint motion
-    Base::computeJointControlCmds(error, internal_period);
-  }
+    ctrl::Vector6D motion_error;
+    motion_error << twist_cmd.vel.x(),
+                   twist_cmd.vel.y(),
+                   twist_cmd.vel.z(),
+                   twist_cmd.rot.x(),
+                   twist_cmd.rot.y(),
+                   twist_cmd.rot.z();
 
-  // Write final commands to the hardware interface
-  Base::writeJointControlCmds();
+    Base::computeJointControlCmds(motion_error, period);
+    Base::writeJointControlCmds();
 
-  return controller_interface::return_type::OK;
+    return controller_interface::return_type::OK;
 }
 
-ctrl::Vector6D CartesianMotionController::computeMotionError()
+
+void CartesianMotionController::decoderCommandCallback(
+  const geometry_msgs::msg::Float64MultiArray::SharedPtr msg)
 {
-  // Compute motion error wrt robot_base_link
-  m_current_frame = Base::m_ik_solver->getEndEffectorPose();
-
-  // Transformation from target -> current corresponds to error = target - current
-  KDL::Frame error_kdl;
-  error_kdl.M = m_target_frame.M * m_current_frame.M.Inverse();
-  error_kdl.p = m_target_frame.p - m_current_frame.p;
-
-  // Use Rodrigues Vector for a compact representation of orientation errors
-  // Only for angles within [0,Pi)
-  KDL::Vector rot_axis = KDL::Vector::Zero();
-  double angle = error_kdl.M.GetRotAngle(rot_axis);  // rot_axis is normalized
-  double distance = error_kdl.p.Normalize();
-
-  // Clamp maximal tolerated error.
-  // The remaining error will be handled in the next control cycle.
-  // Note that this is also the maximal offset that the
-  // cartesian_compliance_controller can use to build up a restoring stiffness
-  // wrench.
-  const double max_angle = 1.0;
-  const double max_distance = 1.0;
-  angle = std::clamp(angle, -max_angle, max_angle);
-  distance = std::clamp(distance, -max_distance, max_distance);
-
-  // Scale errors to allowed magnitudes
-  rot_axis = rot_axis * angle;
-  error_kdl.p = error_kdl.p * distance;
-
-  // Reassign values
-  ctrl::Vector6D error;
-  error(0) = error_kdl.p.x();
-  error(1) = error_kdl.p.y();
-  error(2) = error_kdl.p.z();
-  error(3) = rot_axis(0);
-  error(4) = rot_axis(1);
-  error(5) = rot_axis(2);
-
-  return error;
-}
-
-void CartesianMotionController::targetFrameCallback(
-  const geometry_msgs::msg::PoseStamped::SharedPtr target)
-{
-  if (!this->isActive())
-  {
+  // Check if the controller is active and if the message has enough data
+  if (!this->isActive() || msg->data.size() < 6) {
     return;
   }
 
-  if (std::isnan(target->pose.position.x) || std::isnan(target->pose.position.y) ||
-      std::isnan(target->pose.position.z) || std::isnan(target->pose.orientation.x) ||
-      std::isnan(target->pose.orientation.y) || std::isnan(target->pose.orientation.z) ||
-      std::isnan(target->pose.orientation.w))
-  {
-    auto & clock = *get_node()->get_clock();
-    RCLCPP_WARN_STREAM_THROTTLE(get_node()->get_logger(), clock, 3000,
-                                "NaN detected in target pose. Ignoring input.");
-    return;
+  // Check if the message has NaN
+  for (size_t i = 0; i < msg->data.size(); ++i) {
+    if (std::isnan(msg->data[i])) {
+      auto & clock = *get_node()->get_clock();
+      RCLCPP_WARN_STREAM_THROTTLE(
+        get_node()->get_logger(),
+        clock,
+        3000,
+        "NaN detected in decoder command. Ignoring input."
+      );
+      return;
+    }
   }
 
-  if (target->header.frame_id != Base::m_robot_base_link)
-  {
-    auto & clock = *get_node()->get_clock();
-    RCLCPP_WARN_THROTTLE(get_node()->get_logger(), clock, 3000,
-                         "Got target pose in wrong reference frame. Expected: %s but got %s",
-                         Base::m_robot_base_link.c_str(), target->header.frame_id.c_str());
-    return;
-  }
-
-  m_target_frame = KDL::Frame(
-    KDL::Rotation::Quaternion(target->pose.orientation.x, target->pose.orientation.y,
-                              target->pose.orientation.z, target->pose.orientation.w),
-    KDL::Vector(target->pose.position.x, target->pose.position.y, target->pose.position.z));
+  // Copy the command data
+  std::copy_n(
+    msg->data.begin(),
+    std::min(msg->data.size(), size_t(7)),
+    m_latest_command.begin()
+  );
 }
+
 
 }  // namespace cartesian_motion_controller
 
 // Pluginlib
 #include <pluginlib/class_list_macros.hpp>
 
-PLUGINLIB_EXPORT_CLASS(cartesian_motion_controller::CartesianMotionController,
-                       controller_interface::ControllerInterface)
+PLUGINLIB_EXPORT_CLASS(
+    cartesian_motion_controller::CartesianMotionController,
+    controller_interface::ControllerInterface
+)

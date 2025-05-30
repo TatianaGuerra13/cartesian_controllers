@@ -45,7 +45,8 @@
 
 #include <controller_interface/controller_interface.hpp>
 
-#include "geometry_msgs/msg/pose_stamped.hpp"
+#include "std_msgs/msg/float64_multi_array.hpp"
+#include <array>
 
 namespace cartesian_motion_controller
 {
@@ -104,13 +105,12 @@ protected:
      *
      * @return The error as a 6-dim vector (linear, angular) w.r.t to the robot base link
      */
-  ctrl::Vector6D computeMotionError();
-  KDL::Frame m_target_frame;
-  KDL::Frame m_current_frame;
 
-  void targetFrameCallback(const geometry_msgs::msg::PoseStamped::SharedPtr target);
 
-  rclcpp::Subscription<geometry_msgs::msg::PoseStamped>::SharedPtr m_target_frame_subscr;
+  void decoderCommandCallback(const geometry_msgs::msg::Float64MultiArray::SharedPtr msg);
+   std::array<double, 7> m_latest_command{}; 
+  
+   rclcpp::Subscription<geometry_msgs::msg::Float64MultiArray>::SharedPtr m_decoder_subscr;
 };
 
 }  // namespace cartesian_motion_controller
