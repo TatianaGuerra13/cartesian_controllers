@@ -108,7 +108,7 @@ protected:
 
 
   void decoderCommandCallback(const geometry_msgs::msg::Float64MultiArray::SharedPtr msg);
-   std::array<double, 7> m_latest_command{}; 
+   std::array<double, 6> m_latest_command{}; 
   
    rclcpp::Subscription<geometry_msgs::msg::Float64MultiArray>::SharedPtr m_decoder_subscr;
 };
