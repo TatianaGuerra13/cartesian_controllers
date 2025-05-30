@@ -1,4 +1,6 @@
-#pragma once
+#ifndef CARTESIAN_MOTION_CONTROLLER_H
+#define CARTESIAN_MOTION_CONTROLLER_H
+
 
 #include <array>
 #include <mutex>
@@ -38,3 +40,4 @@ private:
 };
 
 }  // namespace cartesian_motion_controller
+#endif  // CARTESIAN_MOTION_CONTROLLER_H
