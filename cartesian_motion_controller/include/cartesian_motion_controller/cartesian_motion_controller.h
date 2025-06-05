@@ -37,12 +37,14 @@
  */
 //-----------------------------------------------------------------------------
 
+//velocity controller for cartesian motion 
+
 #ifndef CARTESIAN_MOTION_CONTROLLER_H_INCLUDED
 #define CARTESIAN_MOTION_CONTROLLER_H_INCLUDED
 
 #include <cartesian_controller_base/ROS2VersionConfig.h>
 #include <cartesian_controller_base/cartesian_controller_base.h>
-
+ 
 #include <controller_interface/controller_interface.hpp>
 
 #include "std_msgs/msg/float64_multi_array.hpp"
@@ -55,7 +57,7 @@ class CartesianMotionController : public virtual cartesian_controller_base::Cart
 {
 public:
   CartesianMotionController();
-  virtual ~CartesianMotionController() = default;
+  virtual ~CartesianMotionController() = default;  
 
   virtual LifecycleNodeInterface::CallbackReturn on_init() override;
 
@@ -76,10 +78,10 @@ public:
 protected:
   
 
-  void decoderCommandCallback(const geometry_msgs::msg::Float64MultiArray::SharedPtr msg);
+  void decoderCommandCallback(const std_msgs::msg::Float64MultiArray::SharedPtr msg);
    std::array<double, 6> m_latest_command{}; 
   
-   rclcpp::Subscription<geometry_msgs::msg::Float64MultiArray>::SharedPtr m_decoder_subscr;
+   rclcpp::Subscription<std_msgs::msg::Float64MultiArray>::SharedPtr m_decoder_subscr;
 };
 
 }  // namespace cartesian_motion_controller

@@ -75,9 +75,9 @@ CartesianMotionController::on_configure(const rclcpp_lifecycle::State & previous
     return ret;
   }
 
-  m_decoder_subscr = get_node()->create_subscription<geometry_msgs::msg::Float64MultiArray>(
+  m_decoder_subscr = get_node()->create_subscription<std_msgs::msg::Float64MultiArray>(
     get_node()->get_name() + std::string("/decoder_output"), 3,
-    std::bind(&CartesianMotionController::decoderCommandCallbackCallback, this, std::placeholders::_1));
+    std::bind(&CartesianMotionController::decoderCommandCallback, this, std::placeholders::_1));
 
   return rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn::SUCCESS;
 }
@@ -127,7 +127,7 @@ CartesianMotionController::update(const rclcpp::Time & time,
 
 
 void CartesianMotionController::decoderCommandCallback(
-  const geometry_msgs::msg::Float64MultiArray::SharedPtr msg)
+  const std_msgs::msg::Float64MultiArray::SharedPtr msg)
 {
   // Check if the controller is active and if the message has enough data
   if (!this->isActive() || msg->data.size() < 6) {

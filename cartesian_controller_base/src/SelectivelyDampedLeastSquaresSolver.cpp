@@ -38,7 +38,7 @@
 //-----------------------------------------------------------------------------
 
 #include <cartesian_controller_base/SelectivelyDampedLeastSquaresSolver.h>
-
+#include <rclcpp/rclcpp.hpp>
 #include <memory>
 #include <pluginlib/class_list_macros.hpp>
 
@@ -61,7 +61,12 @@ PLUGINLIB_EXPORT_CLASS(cartesian_controller_base::SelectivelyDampedLeastSquaresS
 
 namespace cartesian_controller_base
 {
-SelectivelyDampedLeastSquaresSolver::SelectivelyDampedLeastSquaresSolver() {}
+SelectivelyDampedLeastSquaresSolver::SelectivelyDampedLeastSquaresSolver() 
+{
+  //for understanding that we are using this solver
+  RCLPP_WARN(rclcpp::get_logger("SelectivelyDampedLeastSquaresSolver"),
+             "Using Selectively Damped Least Squares Solver. ");
+}
 
 SelectivelyDampedLeastSquaresSolver::~SelectivelyDampedLeastSquaresSolver() {}
 
@@ -70,6 +75,7 @@ trajectory_msgs::msg::JointTrajectoryPoint SelectivelyDampedLeastSquaresSolver::
 {
   // Compute joint Jacobian
   m_jnt_jacobian_solver->JntToJac(m_current_positions, m_jnt_jacobian);
+
 
   Eigen::JacobiSVD<Eigen::Matrix<double, 6, Eigen::Dynamic> > JSVD(
     m_jnt_jacobian.data, Eigen::ComputeFullU | Eigen::ComputeFullV);
