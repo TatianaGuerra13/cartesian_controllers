@@ -76,7 +76,7 @@ CartesianMotionController::on_configure(const rclcpp_lifecycle::State & previous
   }
 
   m_decoder_subscr = get_node()->create_subscription<std_msgs::msg::Float64MultiArray>(
-    get_node()->get_name() + std::string("/decoder_output"), 3,
+    get_node()->get_name() + std::string("/CartesianMotionControllerInput"), 3,
     std::bind(&CartesianMotionController::decoderCommandCallback, this, std::placeholders::_1));
 
   return rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn::SUCCESS;

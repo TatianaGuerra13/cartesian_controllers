@@ -8,7 +8,7 @@ cartesian_motion_controller:
   ros_parameters:
     robot_description: robot_description
     robot_base_link: silvestrobase_link
-    end_effector_link: "tool0"
+    end_effector_link: silvestrotool0
 
 
     joints:

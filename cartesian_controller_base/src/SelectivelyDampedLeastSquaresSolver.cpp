@@ -64,7 +64,7 @@ namespace cartesian_controller_base
 SelectivelyDampedLeastSquaresSolver::SelectivelyDampedLeastSquaresSolver() 
 {
   //for understanding that we are using this solver
-  RCLPP_WARN(rclcpp::get_logger("SelectivelyDampedLeastSquaresSolver"),
+  RCLCPP_WARN(rclcpp::get_logger("SelectivelyDampedLeastSquaresSolver"),
              "Using Selectively Damped Least Squares Solver. ");
 }
 
