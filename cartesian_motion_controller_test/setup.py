@@ -26,7 +26,7 @@ setup(
     entry_points={
         'console_scripts': [
             'test_publisher = cartesian_motion_controller_test.test_publisher:main',
-            'x_dot_plot_publisher = cartesian_motion_controller_test.xdot_plot_publisher:main',
+            'xdot_plot_publisher = cartesian_motion_controller_test.xdot_plot_publisher:main',
         ],
     },
 )

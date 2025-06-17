@@ -7,19 +7,22 @@ class XDotPlotPublisher(Node):
     def __init__(self):
         super().__init__('xdot_plot_publisher')
 
-        self.publisher_ = self.create_publisher(
-            Float64MultiArray, 
-            '/cartesian_motion_controller/CartesianMotionControllerInput', 
+        # Subscribe al comando di input (xdot dato al controller)
+        self.subscription_input = self.create_subscription(
+            Float64MultiArray,
+            '/cartesian_motion_controller/CartesianMotionControllerInput',
             self.input_callback,
             10)
 
-        self_subscription = self.create_subscription(
+        # Subscribe alla velocità effettiva pubblicata dal controller
+        self.subscription_twist = self.create_subscription(
             TwistStamped,
             '/cartesian_motion_controller/current_twist',
             self.twist_callback,
             10)
 
-        self.self.pub_input = self.create_publisher(Float64MultiArray, '/xdot_input', 10)
+        # Publisher sui topic che useremo per PlotJuggler
+        self.pub_input = self.create_publisher(Float64MultiArray, '/xdot_input', 10)
         self.pub_measured = self.create_publisher(Float64MultiArray, '/xdot_measured', 10)
 
     def input_callback(self, msg):
@@ -39,11 +42,10 @@ class XDotPlotPublisher(Node):
 
 def main():
     rclpy.init()
-    node = XdotPlotPublisher()
+    node = XDotPlotPublisher()
     rclpy.spin(node)
     node.destroy_node()
     rclpy.shutdown()
 
 if __name__ == '__main__':
     main()
-
