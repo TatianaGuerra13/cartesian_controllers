@@ -10,7 +10,7 @@ class TestPublisher(Node):
 
         self.publisher_ = self.create_publisher(Float64MultiArray, '/cartesian_motion_controller_silvestro/CartesianMotionControllerInput', 10)
 
-        timer_period = 0.02  # 50hz, try with the same frequency of decoder
+        timer_period = 0.001  # 50hz, try with the same frequency of decoder
         self.timer = self.create_timer(timer_period, self.timer_callback)
 
         self.start_time = time.time()
