@@ -10,14 +10,14 @@ class XDotPlotPublisher(Node):
         # Subscribe al comando di input (xdot dato al controller)
         self.subscription_input = self.create_subscription(
             Float64MultiArray,
-            '/cartesian_motion_controller/CartesianMotionControllerInput',
+            '/cartesian_motion_controller_silvestro/CartesianMotionControllerInput',
             self.input_callback,
             10)
 
         # Subscribe alla velocità effettiva pubblicata dal controller
         self.subscription_twist = self.create_subscription(
             TwistStamped,
-            '/cartesian_motion_controller/current_twist',
+            '/cartesian_motion_controller_silvestro/current_twist',
             self.twist_callback,
             10)
 
