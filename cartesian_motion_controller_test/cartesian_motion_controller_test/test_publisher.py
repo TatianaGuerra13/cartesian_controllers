@@ -10,25 +10,32 @@ class TestPublisher(Node):
 
         self.publisher_ = self.create_publisher(Float64MultiArray, '/cartesian_motion_controller_silvestro/CartesianMotionControllerInput', 10)
 
-        timer_period = 0.001  # 50hz, try with the same frequency of decoder
+        timer_period = 0.01  # 50 Hz
         self.timer = self.create_timer(timer_period, self.timer_callback)
 
         self.start_time = time.time()
+
         self.freq = 0.2  # Hz
+        self.max_displacement = 0.2  # Max displacement in meters (20 cm)
+
+        # Amplitude to stay within 20 cm displacement over full sinusoid
+        self.amp = self.max_displacement * np.pi * self.freq
+
+        # Angular amplitude (just a small fixed value)
+        self.ang_amp = 0.05
 
     def timer_callback(self):
         elapsed_time = time.time() - self.start_time
 
         msg = Float64MultiArray()
 
-        amp = 0.1  # Ampiezza massima
-        vx = amp * np.sin(2 * np.pi * self.freq * elapsed_time)
-        vy = amp * np.sin(2 * np.pi * self.freq * elapsed_time + np.pi/2)
-        vz = amp * np.sin(2 * np.pi * self.freq * elapsed_time + np.pi)
+        vx = self.amp * np.sin(2 * np.pi * self.freq * elapsed_time)
+        vy = self.amp * np.sin(2 * np.pi * self.freq * elapsed_time + np.pi/2)
+        vz = self.amp * np.sin(2 * np.pi * self.freq * elapsed_time + np.pi)
 
-        wx = 0.05 * np.sin(2 * np.pi * self.freq * elapsed_time)
-        wy = 0.05 * np.sin(2 * np.pi * self.freq * elapsed_time + np.pi/2)
-        wz = 0.05 * np.sin(2 * np.pi * self.freq * elapsed_time + np.pi)
+        wx = self.ang_amp * np.sin(2 * np.pi * self.freq * elapsed_time)
+        wy = self.ang_amp * np.sin(2 * np.pi * self.freq * elapsed_time + np.pi/2)
+        wz = self.ang_amp * np.sin(2 * np.pi * self.freq * elapsed_time + np.pi)
 
         msg.data = [vx, vy, vz, wx, wy, wz]
 
