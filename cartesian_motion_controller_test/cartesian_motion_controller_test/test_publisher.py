@@ -16,7 +16,7 @@ class TestPublisher(Node):
         self.start_time = time.time()
 
         self.freq = 0.2  # Hz
-        self.max_displacement = 0.2  # Max displacement in meters (20 cm)
+        self.max_displacement = 0.1  # Max displacement in meters (20 cm)
 
         # Amplitude to stay within 20 cm displacement over full sinusoid
         self.amp = self.max_displacement * np.pi * self.freq
