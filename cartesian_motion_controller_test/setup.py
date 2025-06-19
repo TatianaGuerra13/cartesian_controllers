@@ -27,6 +27,7 @@ setup(
         'console_scripts': [
             'test_publisher = cartesian_motion_controller_test.test_publisher:main',
             'xdot_plot_publisher = cartesian_motion_controller_test.xdot_plot_publisher:main',
+            'single_axis_publisher = cartesian_motion_controller_test.single_axis_publisher:main',
         ],
     },
 )
