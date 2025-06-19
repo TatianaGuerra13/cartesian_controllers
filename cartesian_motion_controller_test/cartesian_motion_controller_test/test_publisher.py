@@ -10,7 +10,8 @@ class TestPublisher(Node):
 
         self.publisher_ = self.create_publisher(Float64MultiArray, '/cartesian_motion_controller_silvestro/CartesianMotionControllerInput', 10)
 
-        timer_period = 0.01  # 50 Hz
+        timer_period = 0.01  # try different values to see the effect
+        # 0.01 seconds = 100 Hz, which is a good frequency for smooth, 50Hz is not good
         self.timer = self.create_timer(timer_period, self.timer_callback)
 
         self.start_time = time.time()
