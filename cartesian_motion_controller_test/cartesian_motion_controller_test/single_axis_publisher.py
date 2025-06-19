@@ -14,7 +14,7 @@ class SingleAxisPublisher(Node):
             10
         )
 
-        timer_period = 0.01  # 100 Hz
+        timer_period = 0.002  # 500 Hz
         self.timer = self.create_timer(timer_period, self.timer_callback)
 
         self.start_time = time.time()
