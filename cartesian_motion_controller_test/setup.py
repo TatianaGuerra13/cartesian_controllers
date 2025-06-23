@@ -1,4 +1,3 @@
-
 from setuptools import setup
 from glob import glob
 import os
@@ -30,6 +29,7 @@ setup(
             'xdot_plot_publisher = cartesian_motion_controller_test.xdot_plot_publisher:main',
             'single_axis_publisher = cartesian_motion_controller_test.single_axis_publisher:main',
             'neural_6dof_publisher = cartesian_motion_controller_test.neural_6dof_publisher:main',
+            'marker_publisher = cartesian_motion_controller_test.marker_publisher:main',
         ],
     },
 )
