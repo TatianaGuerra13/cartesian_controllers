@@ -19,13 +19,16 @@ class SingleAxisPublisher(Node):
 
         self.start_time = time.time()
         self.freq = 0.2  # Hz
-        self.velocity_amplitude = 0.5  # m/s
+        self.max_displacement = 0.1  # Max displacement in meters (10 cm)
+
+        # Calculate amplitude to stay within max_displacement
+        self.amp = self.max_displacement * np.pi * self.freq
 
     def timer_callback(self):
         elapsed_time = time.time() - self.start_time
 
-        # Direct velocity command without displacement limits
-        vx = self.velocity_amplitude * np.sin(2 * np.pi * self.freq * elapsed_time)
+        # Velocity command with amplitude limited by max_displacement
+        vx = self.amp * np.sin(2 * np.pi * self.freq * elapsed_time)
 
         # Create message with only X velocity
         msg = Float64MultiArray()
