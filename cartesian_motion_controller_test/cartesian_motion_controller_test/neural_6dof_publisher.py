@@ -28,7 +28,7 @@ class Neural6DOFPublisher(Node):
             self.data = []
 
         self.index = 0
-        self.dt = 0.01  # 100 Hz ??
+        self.dt = 0.01  # 100 Hz ??     
         self.timer = self.create_timer(self.dt, self.publish_next)
 
     def publish_next(self):
