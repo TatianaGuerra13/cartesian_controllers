@@ -30,6 +30,7 @@ setup(
             'single_axis_publisher = cartesian_motion_controller_test.single_axis_publisher:main',
             'neural_6dof_publisher = cartesian_motion_controller_test.neural_6dof_publisher:main',
             'marker_publisher = cartesian_motion_controller_test.marker_publisher:main',
+            'trial_publisher = cartesian_motion_controller_test.trial_publisher:main',
         ],
     },
 )

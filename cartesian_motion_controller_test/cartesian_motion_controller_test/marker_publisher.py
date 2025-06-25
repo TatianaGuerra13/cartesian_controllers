@@ -48,6 +48,27 @@ class MarkerPublisher(Node):
         shoulder_marker.lifetime = duration
         marker_array.markers.append(shoulder_marker)
         
+        # Initial position e-e marker (violet)
+        ee_marker = Marker()
+        ee_marker.header.frame_id = "sdr_reference"
+        ee_marker.header.stamp = self.get_clock().now().to_msg()
+        ee_marker.ns = "markers"
+        ee_marker.id = 100
+        ee_marker.type = Marker.SPHERE
+        ee_marker.action = Marker.ADD
+        ee_marker.pose.position.x = 0.35
+        ee_marker.pose.position.y = -0.06
+        ee_marker.pose.position.z = 0.0
+        ee_marker.pose.orientation.w = 1.0
+        ee_marker.scale.x = ee_marker.scale.y = ee_marker.scale.z = 0.05
+        ee_marker.color.r = 0.5
+        ee_marker.color.g = 0.0
+        ee_marker.color.b = 1.0
+        ee_marker.color.a = 1.0
+        ee_marker.lifetime = duration
+        ee_marker.text = "initial position e-e"  
+        marker_array.markers.append(ee_marker)
+
         # Target markers
         for i, pos in enumerate(self.positions):
             marker = Marker()
