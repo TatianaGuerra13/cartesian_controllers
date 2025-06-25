@@ -17,30 +17,32 @@ class TrialPublisher(Node):
 
         try:
             package_share_dir = get_package_share_directory('cartesian_motion_controller_test')
-            csv_path = os.path.join(package_share_dir, 'data', 'velocity_clean_with_trials.csv')
+            csv_path = os.path.join(package_share_dir, 'data', 'velocity_no_presentation_with_trials.csv')
 
             self.data = []
 
             with open(csv_path, 'r') as f:
                 reader = csv.DictReader(f)
                 for row in reader:
-                    if row['trial'] == '1':  # analize trial 1
-                        self.data.append([
-                            float(row['Var1']),
-                            float(row['Var2']),
-                            float(row['Var3']),
-                            float(row['Var4']),
-                            float(row['Var5']),
-                            float(row['Var6'])
-                        ])
-            self.get_logger().info(f'Loaded {len(self.data)} rows from trial 1.')
+                    self.data.append([
+                        float(row['Var1']),
+                        float(row['Var2']),
+                        float(row['Var3']),
+                        float(row['Var4']),
+                        float(row['Var5']),
+                        float(row['Var6'])
+                    ])
+                    if row['phase_label'] == 'SnapTo 2':  # analize until grasp
+                        break
+
+            self.get_logger().info(f'Loaded {len(self.data)} rows from first trial.')
 
         except Exception as e:
             self.get_logger().error(f'Could not read CSV: {e}')
             self.data = []
 
         self.index = 0
-        self.dt = 0.02  #  50 Hz
+        self.dt = 0.0083  #  50 Hz
         self.timer = self.create_timer(self.dt, self.publish_next)
 
     def publish_next(self):
