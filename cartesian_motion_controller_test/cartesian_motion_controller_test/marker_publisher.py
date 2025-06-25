@@ -30,9 +30,9 @@ class MarkerPublisher(Node):
         duration.sec = 0
         duration.nanosec = 0
         
-        # Shoulder marker at origin
+        # Shoulder marker at origin, itś not necessary 
         shoulder_marker = Marker()
-        shoulder_marker.header.frame_id = "world"
+        shoulder_marker.header.frame_id = "sdr_reference"
         shoulder_marker.header.stamp = self.get_clock().now().to_msg()
         shoulder_marker.ns = "markers"
         shoulder_marker.id = 0
@@ -51,7 +51,7 @@ class MarkerPublisher(Node):
         # Target markers
         for i, pos in enumerate(self.positions):
             marker = Marker()
-            marker.header.frame_id = "silvestroshoulder_link"
+            marker.header.frame_id = "sdr_reference"
             marker.header.stamp = self.get_clock().now().to_msg()
             marker.ns = "markers"
             marker.id = i + 1  # start from 1
