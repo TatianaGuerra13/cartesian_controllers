@@ -5,9 +5,9 @@ import os
 from ament_index_python.packages import get_package_share_directory
 import csv
 
-class TrialPublisher(Node):
+class ActualVelPublisher(Node):
     def __init__(self):
-        super().__init__('trial_publisher')
+        super().__init__('actualvel_publisher')
 
         self.publisher_ = self.create_publisher(
             Float64MultiArray,
@@ -17,7 +17,7 @@ class TrialPublisher(Node):
 
         try:
             package_share_dir = get_package_share_directory('cartesian_motion_controller_test')
-            csv_path = os.path.join(package_share_dir, 'data', 'velocity_no_presentation_with_trials.csv')
+            csv_path = os.path.join(package_share_dir, 'data', 'actualvel_no_presentation_with_trials.csv')
 
             self.data = []
 
@@ -25,14 +25,14 @@ class TrialPublisher(Node):
                 reader = csv.DictReader(f)
                 for row in reader:
                     self.data.append([
-                        float(row['Var1']),
-                        float(row['Var2']),
-                        float(row['Var3']),
-                        float(row['Var4']),
-                        float(row['Var5']),
-                        float(row['Var6'])
+                        float(row['pos1']),
+                        float(row['pos2']),
+                        float(row['pos3']),
+                        float(row['pos4']),
+                        float(row['pos5']),
+                        float(row['pos6'])
                     ])
-                    if row['phase_label'] == 'SnapTo 2':  # analize until grasp
+                    if row['phase_label'] == 'Carry 6':  # analize until grasp
                         break
 
             self.get_logger().info(f'Loaded {len(self.data)} rows from first trial.')
@@ -42,7 +42,7 @@ class TrialPublisher(Node):
             self.data = []
 
         self.index = 0
-        self.dt = 0.02  #  120 Hz
+        self.dt = 0.02  # 50 Hz
         self.timer = self.create_timer(self.dt, self.publish_next)
 
     def publish_next(self):
@@ -64,7 +64,7 @@ class TrialPublisher(Node):
 
 def main(args=None):
     rclpy.init(args=args)
-    node = TrialPublisher()
+    node = ActualVelPublisher()
     try:
         rclpy.spin(node)
     except KeyboardInterrupt:
