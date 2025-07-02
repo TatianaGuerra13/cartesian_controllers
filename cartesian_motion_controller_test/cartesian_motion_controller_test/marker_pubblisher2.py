@@ -72,15 +72,16 @@ class MarkerPublisher(Node):
         # Target markers
         for i, pos in enumerate(self.positions):
             marker = Marker()
-            marker.header.frame_id = 'silvestroshoulder_link' #"sdr_reference"
-            marker.header.stamp = self.get_clock().now().to_msg()
+            marker.header.frame_id = 'silvestroshoulder_link'
+            marker.header.stamp.sec = 0
+            marker.header.stamp.nanosec = 0
             marker.ns = "markers"
             marker.id = i + 1  # start from 1
             marker.type = Marker.SPHERE
             marker.action = Marker.ADD
             marker.pose.position.x = float(pos[0])
-            marker.pose.position.y = float(pos[1])
-            marker.pose.position.z = float(pos[2])
+            marker.pose.position.y = float(pos[2])
+            marker.pose.position.z = float(pos[1])
             marker.pose.orientation.w = 1.0
             marker.scale.x = marker.scale.y = marker.scale.z = 0.05
             marker.color.g = 1.0
