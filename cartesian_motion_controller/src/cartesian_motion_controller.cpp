@@ -48,6 +48,8 @@
 #include "controller_interface/controller_interface.hpp"
 #include "rclcpp/clock.hpp"
 #include "rclcpp/duration.hpp"
+#include <rclcpp/rclcpp.hpp>
+
 
 namespace cartesian_motion_controller
 {
@@ -131,8 +133,17 @@ void CartesianMotionController::decoderCommandCallback(
 {
   // Check if the controller is active and if the message has enough data
   if (!this->isActive() || msg->data.size() < 6) {
+    auto & clock = *get_node()->get_clock(); 
+    RCLCPP_WARN_STREAM_THROTTLE(
+        get_node()->get_logger(),
+        clock,
+        3000,
+        "NOT ACTIVE"
+      );
     return;
   }
+RCLCPP_INFO(get_node()->get_logger(),
+    "Received COMMAND!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
 
   // Check if the message has NaN
   for (size_t i = 0; i < msg->data.size(); ++i) {
