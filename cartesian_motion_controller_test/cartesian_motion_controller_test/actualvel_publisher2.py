@@ -5,7 +5,6 @@ import os
 from ament_index_python.packages import get_package_share_directory
 import csv
 
-##different sdr with marker_publisher2.py
 class ActualVelPublisher(Node):
     def __init__(self):
         super().__init__('actualvel_publisher')
@@ -29,9 +28,9 @@ class ActualVelPublisher(Node):
                         float(row['pos1']),
                         float(row['pos3']),
                         float(row['pos2']),
-                        float(row['pos4']),
-                        float(row['pos5']),
-                        float(row['pos6'])
+                        0.0,
+                        0.0,
+                        0.0
                     ])
                     if row['phase_label'] == 'Carry 6':  # analize until grasp
                         break
@@ -43,16 +42,14 @@ class ActualVelPublisher(Node):
             self.data = []
 
         self.index = 0
-        self.dt = 0.02  # 50 Hz
+        self.dt = 0.1  # 50 Hz
         self.timer = self.create_timer(self.dt, self.publish_next)
 
     def publish_next(self):
-        # Se ci sono ancora dati, pubblica la riga corrente
         if self.index < len(self.data):
             row = self.data[self.index]
             self.index += 1
         else:
-            # Se hai finito i dati, pubblica sempre l'ultima riga
             row = self.data[-1]
 
         msg = Float64MultiArray()

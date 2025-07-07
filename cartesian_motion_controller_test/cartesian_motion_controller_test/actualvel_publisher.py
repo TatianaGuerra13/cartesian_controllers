@@ -42,16 +42,14 @@ class ActualVelPublisher(Node):
             self.data = []
 
         self.index = 0
-        self.dt = 0.02  # 50 Hz
+        self.dt = 0.1  # 50 Hz
         self.timer = self.create_timer(self.dt, self.publish_next)
 
     def publish_next(self):
-        # Se ci sono ancora dati, pubblica la riga corrente
         if self.index < len(self.data):
             row = self.data[self.index]
             self.index += 1
         else:
-            # Se hai finito i dati, pubblica sempre l'ultima riga
             row = self.data[-1]
 
         msg = Float64MultiArray()

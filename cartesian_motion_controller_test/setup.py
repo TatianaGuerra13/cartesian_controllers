@@ -34,6 +34,7 @@ setup(
             'actualvel_publisher = cartesian_motion_controller_test.actualvel_publisher:main',
             'marker_publisher2 = cartesian_motion_controller_test.marker_pubblisher2:main',
             'actualvel_publisher2 = cartesian_motion_controller_test.actualvel_publisher2:main',
+            'test = cartesian_motion_controller_test.test:main',
         ],
     },
 )

@@ -6,9 +6,10 @@ from ament_index_python.packages import get_package_share_directory
 import csv
 import math
 
-class TrialPublisher(Node):
+
+class Testing(Node):
     def __init__(self):
-        super().__init__('trial_publisher')
+        super().__init__('testing')
 
         self.publisher_ = self.create_publisher(
             Float64MultiArray,
@@ -18,25 +19,28 @@ class TrialPublisher(Node):
 
         try:
             package_share_dir = get_package_share_directory('cartesian_motion_controller_test')
-            csv_path = os.path.join(package_share_dir, 'data', 'velocity_no_presentation_with_trials.csv')
+            csv_path = os.path.join(package_share_dir, 'data', 'actualvel_no_presentation_with_trials.csv')
 
             self.data = []
 
             with open(csv_path, 'r') as f:
                 reader = csv.DictReader(f)
                 for row in reader:
-                    values = [
-                        float(row['Var1']),
-                        float(row['Var2']),
-                        float(row['Var3']),
-                        float(row['Var4']),
-                        float(row['Var5']),
-                        float(row['Var6'])
-                    ]
-                    # skip if the value is NaN
-                    if any(math.isnan(v) for v in values):
-                        continue
-                    self.data.append(values)
+                    try:
+                        vx = float(row['pos1'])
+                    except ValueError: 
+                        vx = 0.0
+                    if math.isnan(vx):
+                        vx = 0.0
+                        vx*=10.0  # Scale the velocity if needed
+                    self.data.append([
+                        vx,    # vx
+                        0.0,   # vy
+                        0.0,   # vz
+                        0.0,   # wx
+                        0.0,   # wy
+                        0.0    # wz
+                    ])
                     if row['phase_label'] == 'Release 54':  # analize until grasp
                         break
 
@@ -47,7 +51,7 @@ class TrialPublisher(Node):
             self.data = []
 
         self.index = 0
-        self.dt = 0.02 #   Hz
+        self.dt = 0.02  # 50 Hz
         self.timer = self.create_timer(self.dt, self.publish_next)
 
     def publish_next(self):
@@ -69,7 +73,7 @@ class TrialPublisher(Node):
 
 def main(args=None):
     rclpy.init(args=args)
-    node = TrialPublisher()
+    node = Testing()
     try:
         rclpy.spin(node)
     except KeyboardInterrupt:

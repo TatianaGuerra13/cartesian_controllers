@@ -1,11 +1,12 @@
 import rclpy
 from rclpy.node import Node
 from std_msgs.msg import Float64MultiArray
+import math
 import time
 
-class SingleAxisPublisher(Node):
+class Test(Node):
     def __init__(self):
-        super().__init__('single_axis_publisher')
+        super().__init__('test')
 
         self.publisher_ = self.create_publisher(
             Float64MultiArray, 
@@ -13,18 +14,21 @@ class SingleAxisPublisher(Node):
             10
         )
 
-        timer_period = 0.01  # 100 Hz
-        self.timer = self.create_timer(timer_period, self.timer_callback)
-
-        self.vx = 0.5  # Velocità costante in m/s (modifica qui per provare altri valori)
+        self.vx = 0.5 
+        self.amp = 1.0      
+        self.freq = 0.1     
+        self.start = time.time()
+        self.timer = self.create_timer(0.01, self.timer_callback)
 
     def timer_callback(self):
-        # Comando di velocità costante lungo X
+        t = time.time() - self.start
+        vy = self.amp * math.sin(2 * math.pi * self.freq * t)
+        vz = self.amp * math.sin(2 * math.pi * self.freq * t)
         msg = Float64MultiArray()
         msg.data = [
             self.vx,  # X velocity
-            0.0,      # Y velocity
-            0.0,      # Z velocity
+            vy,#Y velocity
+            vz,#Z velocity
             0.0,      # Angular X
             0.0,      # Angular Y
             0.0       # Angular Z
@@ -33,7 +37,7 @@ class SingleAxisPublisher(Node):
 
 def main():
     rclpy.init()
-    node = SingleAxisPublisher()
+    node = Test()
     rclpy.spin(node)
     node.destroy_node()
     rclpy.shutdown()

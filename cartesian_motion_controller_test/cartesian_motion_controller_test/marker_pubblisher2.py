@@ -32,7 +32,7 @@ class MarkerPublisher(Node):
         
         # Shoulder marker at origin, itś not necessary 
         shoulder_marker = Marker()
-        shoulder_marker.header.frame_id = 'silvestroshoulder_link' #"sdr_reference"
+        shoulder_marker.header.frame_id = 'silvestrobase_link' #"sdr_reference"
         shoulder_marker.header.stamp = self.get_clock().now().to_msg()
         shoulder_marker.ns = "markers"
         shoulder_marker.id = 0
@@ -50,7 +50,7 @@ class MarkerPublisher(Node):
         
         # Initial position e-e marker (violet)
         ee_marker = Marker()
-        ee_marker.header.frame_id = 'silvestroshoulder_link'  #"sdr_reference"
+        ee_marker.header.frame_id = 'silvestroshoulder_link' #'silvestrobase_link'  #"sdr_reference"
         ee_marker.header.stamp = self.get_clock().now().to_msg()
         ee_marker.ns = "markers"
         ee_marker.id = 100
@@ -72,7 +72,7 @@ class MarkerPublisher(Node):
         # Target markers
         for i, pos in enumerate(self.positions):
             marker = Marker()
-            marker.header.frame_id = 'silvestroshoulder_link'
+            marker.header.frame_id = 'silvestroshoulder_link' #'silvestrobase_link'
             marker.header.stamp.sec = 0
             marker.header.stamp.nanosec = 0
             marker.ns = "markers"
